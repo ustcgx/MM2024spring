@@ -1,0 +1,6 @@
+test.m
+
+*.aux
+*.log
+*.out
+*.gz

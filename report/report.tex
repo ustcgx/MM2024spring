@@ -1,0 +1,106 @@
+\documentclass{article}
+\usepackage[UTF8]{ctex}
+\usepackage[tc]{titlepic}
+\usepackage{titlesec}
+\usepackage{cite}
+\usepackage{fancyhdr}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{geometry}
+\usepackage[section]{placeins}
+
+\usepackage{amsmath}
+\usepackage{cases}
+\usepackage{color}
+\usepackage{hyperref}
+\hypersetup{hypertex=true,
+	colorlinks=true,
+	linkcolor=blue,
+	anchorcolor=blue,
+	citecolor=blue}
+\usepackage{listings,xcolor}
+\usepackage{multirow}
+
+\geometry{a4paper,scale=0.8}
+\pagestyle{fancy}
+
+\lhead{第 5 次作业\\\today}
+\chead{中国科学技术大学\\数学建模课程}
+
+\rhead{Assignment 5\\ {\CTEXoptions[today=old]\today}}
+\newcommand{\upcite}[1]{\textsuperscript{\cite{#1}}}
+
+\titleformat*{\section}{\bfseries\Large}
+\titleformat*{\subsection}{\bfseries\large}
+
+\title{\bfseries HW5 title}
+\author{name \quad ID}
+
+\begin{document}
+	\maketitle
+	\begin{abstract}
+		
+		\par \textbf{关键词}：
+	\end{abstract}
+	%\clearpage
+	% \setcounter{secnumdepth}{1}
+	\setcounter{section}{0}
+	
+	\section{前言（问题的提出）}
+	
+	\section{问题分析}
+	
+	\section{建模假设}
+	
+	\section{符号说明}
+	\begin{table}[htbp]
+		\centering
+		\begin{tabular}{ccc}
+			\hline
+			符号 & 含义 & 单位 \\
+			\hline
+			D & 扩散系数 & $m^2/s$ \\
+			Q & 污染物排放速率 & $kg/s$ \\
+			v & 风速 & $m/s$ \\
+			\hline
+		\end{tabular}
+	\end{table}
+	风向是沿x轴正向的（以风向为正向建立x轴）.
+	
+	\section{数学模型建立}
+	\begin{align*}
+		&Given ~ D, ~ v, ~ Q, \quad solve ~ c(x,y,z,t),\\
+		&s.t.
+		\begin{cases}
+			\frac{\partial c}{\partial t} = D\Delta c - v\frac{\partial c}{\partial x} + tf(x,y,z)	\\
+			c|_{x=\pm\infty}=c|_{y=\pm\infty}=c|_{z=+\infty}=0	\\
+			\frac{\partial c}{\partial z}|_{z=0} = 0	\\
+			c|_{t=0}=0
+		\end{cases}\\
+		&where  ~
+		f(x,y,z) = 
+		\begin{cases}
+			Q, \quad if~(x, y, z)=(0, 0, h)\\
+			0, \quad otherwise
+		\end{cases},\\
+		&-\infty<x, y<+\infty, \quad 0\leq z, t<+\infty
+	\end{align*}
+	
+	\section{问题求解}
+	
+	\section{讨论与优化}
+	
+	\section{组内分工}
+	\begin{itemize}
+		\item 假设提出与模型建立
+		\item 代码编写与绘图仿真
+		\item 结果讨论与模型改进
+		\item 结果汇总与报告撰写
+	\end{itemize}
+	
+%	\bibliographystyle{ieeetr}
+%	\begin{thebibliography}{2}
+%		Patrick Pérez, Michel Gangnet, and Andrew Blake. 2003. Poisson image editing. In ACM SIGGRAPH 2003 Papers (SIGGRAPH '03). Association for Computing Machinery, New York, NY, USA, 313–318.
+%	\end{thebibliography}
+	
+\end{document}
