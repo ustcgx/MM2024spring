@@ -4,3 +4,6 @@ test.m
 *.log
 *.out
 *.gz
+*.asv
+*.toc
+pics

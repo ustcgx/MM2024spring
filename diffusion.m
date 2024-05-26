@@ -1,48 +1,60 @@
-% MATLAB仿真程序
-clear;
-clc;
+% MATLAB simulation program
+function res = diffusion(D, v, h, T, show_fig, C_init, t_init)
+%% Parameter Description
+% D: Diffusion coefficient in m^2/s, take a relatively large value
+% v: Wind speed in the x-axis direction in m/s
+% h: Chimney height in meters
+% T: Simulation time in seconds
+% show_fig: confirm whether visualization is needed
+% C_init: Concentration matrix (inherit from the last simulation)
+% t_init: Start time (same as above)
+% res: Return the spatial concentration distribution at the end of the simulation
 
-%% 参数设置
-Lx = 300; % x轴模拟范围 m
-Ly = 300; % y轴模拟范围 m
-Lz = 100; % z轴模拟范围 m
-T = 1000000; % 模拟时间 s
+%% Other parameter settings
+Lx = 300; % x-axis simulation range in meters
+Ly = 300; % y-axis simulation range in meters
+Lz = 100; % z-axis simulation range in meters
 
-figx = 200; % x轴可视化范围 m
-figy = 200; % y轴可视化范围 m
-figz = 100; % z轴可视化范围 m
+figx = 200; % x-axis visualization range in meters
+figy = 200; % y-axis visualization range in meters
+figz = 100; % z-axis visualization range in meters
 
-dx = 1; % x方向网格大小 m
-dy = 1; % y方向网格大小 m
-dz = 1; % z方向网格大小 m
-dt = 0.1; % 时间步长 s
+dx = 1; % x-direction grid size in meters
+dy = 1; % y-direction grid size in meters
+dz = 1; % z-direction grid size in meters
+dt = 0.1; % Time step in seconds
 
-D = 1; % 扩散系数 m^2/s，取相对大值
-v = 1; % 风速，沿x轴方向 m/s
-C0 = 1e-2; % 烟囱排放的恒定浓度 kg/s
-h = 20; % 烟囱高度 m
+C0 = 1e-2; % Constant concentration emitted by the chimney in kg/s
 
-%% 创建网格
+%% Create grid
 num_x = round(2*Lx/dx)+1;
 num_y = round(2*Ly/dy)+1;
 num_z = round(Lz/dz)+1;
 [x, y, z] = meshgrid(linspace(-Lx, Lx, num_x), ...
                      linspace(-Ly, Ly, num_y), ...
                      linspace(0, Lz, num_z));
-% 烟囱口 下标
+% Chimney outlet Subscript
 center = round(Ly/dy)+1;
 height = round(h/dz)+1;
 
+%% Calculate concentration function
+% Initialization
+if (nargin<=5)
+    % C, t not initiated
+    C = zeros(size(x));
+    t_init = 0;
+else
+    % initial C, t given
+    C = C_init;
+end
 
-%% 计算浓度函数
-% 初始化
-C = zeros(size(x));
-figure(); 
-
-% 模拟时间步进
-for t = 0:dt:T
+if (show_fig)
+    figure(); 
+end
+% Simulation time stepping
+for t = t_init:dt:T
     C_new = C;
-    % 更新浓度分布，除了边界
+    % Update concentration distribution, except for boundaries
     for k = 2:num_z-1
         for j = 2:num_y-1
             for i = 2:num_x-1
@@ -57,82 +69,64 @@ for t = 0:dt:T
         end
     end
     
-    %% 边界条件
+    %% Boundary conditions
     C_new(center, center, height) = C_new(center, center, height) + dt * C0;
 
-    % 应用地面反射边界条件（零通量）假设地面反射后浓度不变
+    % Apply ground reflection boundary conditions (zero flux) assuming the concentration remains unchanged after reflection
     C_new(:, :, 1) = C(:, :, 2);
 
-    %% 监测变量
-    C_near = C_new(center-1:center+1, center-1:center+1, height)
-    total_delta_kg = sum(C_new-C,"all")
-    max_delta_kg = max(C_new-C, [], "all")
+    %% Monitor variables
+    % C_near = C_new(center-1:center+1, center-1:center+1, height)
+    total_delta_kg = sum(C_new-C,"all");
+    % max_delta_kg = max(C_new-C, [], "all")
     
-    % 更新浓度分布
+    % Update concentration distribution
     C = C_new;
 
-    %% 绘图
-    if (mod(t, 1)==0)
+    %% Plotting
+    if (show_fig && mod(t, 1)==0)
         % figure 1
-        subplot(2,2,1)
-        surf(y(:,:,1), x(:,:,1), C(:,:,1));% xy是反的，原因暂不明，fig2同
-        colorbar;
-        shading flat;
-
-        xlabel('X/m');
-        ylabel('Y/m');
-        zlabel('C/(kg/m^3)');
-        title(strcat('x-y plain at ground when t=', num2str(t)));
-
-        xlim([-figy, figy]);
-        ylim([-figx, figx]);
-
+        subplot(2,2,1);
+        visualization(y(:,:,1), x(:,:,1), C(:,:,1), 'X/m', 'Y/m', 'C/(kg/m^3)', ...
+            [-figy figy], [-figx figx], ...
+            strcat('x-y plain at ground when t=', num2str(t)), ...
+            [0, 3e-5]);
+        
         % figure 2
-        subplot(2,2,2)
-        surf(y(:,:,height), x(:,:,height), C(:,:,height));
-        colorbar;
-        shading flat;
-
-        xlabel('X/m');
-        ylabel('Y/m');
-        zlabel('C/(kg/m^3)');
-        title(strcat('x-y plain at chimney when t=', num2str(t)));
-
-        xlim([-figy, figy]);
-        ylim([-figx, figx]);
+        subplot(2,2,2);
+        visualization(y(:,:,height), x(:,:,height), C(:,:,height), 'X/m', 'Y/m', 'C/(kg/m^3)', ...
+            [-figy figy], [-figx figx], ...
+            strcat('x-y plain at chimney when t=', num2str(t)));
 
         % figure 3
-        subplot(2,2,3)
-        surf(squeeze(y(:,center,:)), squeeze(z(:,center,:)), squeeze(C(:,center,:)));
-        colorbar;
-        shading flat;
-
-        xlabel('X/m');
-        ylabel('Z/m');
-        zlabel('C/(kg/m^3)');
-        title(strcat('x-z plain at chimney when t=', num2str(t)));
-
-        xlim([-figy, figy]);
-        ylim([0, figz]);
+        subplot(2,2,3);
+        visualization(squeeze(y(:,center,:)), squeeze(z(:,center,:)), squeeze(C(:,center,:)), 'X/m', 'Z/m', 'C/(kg/m^3)', ...
+            [-figy figy], [0, figz], ...
+            strcat('x-z plain at chimney when t=', num2str(t)));
 
         % figure 4
-        subplot(2,2,4)
-        surf(squeeze(x(center,:,:)), squeeze(z(center,:,:)), squeeze(C(center,:,:)));
-        colorbar;
-        shading flat;
+        subplot(2,2,4);
+        visualization(squeeze(x(center,:,:)), squeeze(z(center,:,:)), squeeze(C(center,:,:)), 'Y/m', 'Z/m', 'C/(kg/m^3)', ...
+            [-figx figx], [0, figz], ...
+            strcat('y-z plain at chimney when t=', num2str(t)));
 
-        xlabel('Y/m');
-        ylabel('Z/m');
-        zlabel('C/(kg/m^3)');
-        title(strcat('y-z plain at chimney when t=', num2str(t)));
-
-        xlim([-figx, figx]);
-        ylim([0, figz]);
-
-        drawnow;
+        %% Save
+        % if (mod(t, 50)==0 && t>0)
+        %     savefig(strcat('t=', num2str(t),'.fig'))
+        % end
     end
-    
+
+    %% Convergence
+    if (total_delta_kg<1e-6)
+        break;
+    end
 end
 
-%% 完成模拟
+%% Simulation finished
+% if (show_fig)
+%     % for specific task, please modify the title
+%     savefig(strcat('t=', num2str(t),'.fig'))
+% end
 fprintf('Simulation finished.\n');
+res = C;
+end
