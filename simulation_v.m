@@ -24,4 +24,6 @@ for i = 1 : length(vv)
     end
 end
 
+% when call difussion, please save figure
 % directly save figure at different t under different v.
+% to show the center bias due to wind

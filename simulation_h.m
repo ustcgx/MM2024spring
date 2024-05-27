@@ -28,6 +28,7 @@ end
 
 %% plot
 % show max concentration at ground at diffenrent t under different chimney height t
+% to show that, the higher chimney, the smaller max-concentration at ground
 
 figure;
 plot(hh, max_c);

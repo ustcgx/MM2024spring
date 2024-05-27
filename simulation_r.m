@@ -1,2 +1,2 @@
-% consider diffenrent ratio of ground absorption 
-% alter boundary condition and simulation
+% consider diffenrent ratio of ground absorption
+% call diffusion_reflection instead of diffusion !!!

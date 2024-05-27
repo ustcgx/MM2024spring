@@ -20,6 +20,7 @@
 	citecolor=blue}
 \usepackage{listings,xcolor}
 \usepackage{multirow}
+\usepackage{tabularx}
 
 \geometry{a4paper,scale=0.8}
 \pagestyle{fancy}
@@ -33,50 +34,132 @@
 \titleformat*{\section}{\bfseries\Large}
 \titleformat*{\subsection}{\bfseries\large}
 
-\title{\bfseries HW5 title}
-\author{name \quad ID}
+\title{\bfseries 基于有限元模拟的高塔烟尘扩散数学模型}
+\author{殷腾 \quad PB20030785\\郭旭 \quad PB21151755\\李新涛 \quad PB21151754}
 
 \begin{document}
 	\maketitle
 	\begin{abstract}
+		本研究旨在通过建立和验证一个基于有限元方法的数学模型来模拟高塔排放的烟尘扩散过程.考虑到高塔排放烟尘对环境和公众健康的潜在影响，本模型的开发显得尤为重要.该模型利用有限元方法对烟尘在大气中的扩散和传播进行数值模拟，以预测不同气象条件下的烟尘浓度分布.
 		
-		\par \textbf{关键词}：
+		在本研究中，我们首先定义了高塔周围环境的几何结构以及烟气的初始排放条件。接着，采用Matlab进行几何建模和网格划分，确保计算结果的准确性.在本模型中，采用了扩散方程和若干附加影响项来模拟跟踪颗粒的浓度变化情况.
+		
+		在多个参数条件的比较下，结果表明该模型能够合理预测不同风速下的烟尘扩散情况，对于环境保护和污染控制具有重要意义.此外，模型还可以为高塔的设计和优化提供科学依据，以减少对周边环境的影响.
+		\par \textbf{关键词}：烟尘扩散、数学模型、有限元模拟、环境影响
 	\end{abstract}
 	%\clearpage
 	% \setcounter{secnumdepth}{1}
-	\setcounter{section}{0}
-	
+	\setcounter{section}{-1}
+	\clearpage
 	\tableofcontents
+	\clearpage
 	
-	\section{前言（问题的提出）}
+	\section{问题复述}
+	现有一个高为$h$的高塔，以恒定速率$Q$排出烟尘，附近空间内有衡定风速$v$，建模模拟描述地面处烟尘浓度变化.
+	
+	\section{前言}
+	\subsection{研究背景与意义}
+	在工业生产中，高塔排放的烟尘是一个重要的环境问题.这些烟尘不仅对大气质量造成影响，还可能对人类健康产生负面影响.随着环境保护意识的增强和相关法规的严格，对高塔烟尘排放的监控和控制变得尤为重要.因此，准确预测和评估高塔烟尘在大气中的扩散行为，对于制定有效的污染防治措施至关重要.
+	
+	\subsection{问题的提出}
+	尽管已有一些研究通过实验和理论分析对高塔烟尘扩散进行了探讨，但这些方法往往受限于实验条件或理想化的假设，难以应对复杂多变的实际气象条件.因此，本研究提出了一个基于有限元模拟的高塔烟尘扩散数学模型，旨在更准确地模拟不同环境条件下烟尘的扩散过程，为环境评估和污染控制提供科学依据.
+	
+	\subsection{研究目标与任务}
+	本报告的目标是建立一个可靠的数学模型，通过有限元模拟来预测和分析高塔排放的烟尘在大气中的扩散行为.具体任务包括：
+	\begin{itemize}
+		\item 确定高塔烟尘扩散的主要影响因素和相应的数学描述；
+		\item 选择合适的有限元软件和模拟策略；
+		\item 建立几何模型，进行网格划分，并设置适当的边界条件；
+		\item 通过模拟多组参数条件，获得烟尘扩散的浓度分布；
+		\item 分析模拟结果，提出环境评估和污染控制的建议.
+	\end{itemize}
 	
 	\section{问题分析}
+	\subsection{高塔烟尘扩散的物理过程}
+	高塔烟尘扩散涉及烟尘从排放源释放到大气中的物理过程.这一过程主要由烟尘的动力特性和气象条件（如风速、温度、湿度等）决定.烟尘在大气中的传输和扩散受到重力沉降、气体和颗粒物的相互作用等多种因素的影响.为了精确模拟这一复杂的物理过程，需要综合考虑这些因素，建立合适的数学描述并采用合适的数值方法进行分析.
+	
+	\subsection{数学工具的选择说明}
+	选择和建立合适的数学模型是本研究的关键步骤.考虑到烟尘扩散的复杂性，我们将采用有限元方法作为主要的数值分析工具.有限元方法能够处理给定复杂的初始、边界条件的偏微分方程（PDE），适合于解决此类问题.我们将基于扩散方程，考虑风速、扩散系数等其他影响因素，建立描述烟气扩散的PDE，并将其离散化使用Matlab软件模拟.
 	
 	\section{建模假设}
+	\subsection{自由扩散过程}\noindent
+	当理想气体不受任何其他因素作用，完全自由扩散时，浓度随时间变化服从Fick's Second Law
+	\begin{align*}
+		\frac{\partial c}{\partial t} = D\Delta c
+	\end{align*}
+	这是理想气体自由扩散方程，其扩散系数D在全空间为常数，其中$\Delta$是二阶Laplace算子，此处由于我们考虑的是三维空间，其定义为
+	\begin{align*}
+		\Delta = \frac{\partial^2}{\partial x^2}+\frac{\partial^2}{\partial y^2}+\frac{\partial^2}{\partial z^2}
+	\end{align*}
+	
+	\subsection{风力影响}
+	在实际中，给定某处坐标$(x, y, z)$，有风速$\vec{v}(x,y,z)=(v_x, v_y, v_z)^T$，即这是一个三维空间的向量值函数.现仅考虑风力影响下的粒子运动，某处有风速$v$，烟尘粒子在风的影响下以该速度运动，那么单位面积$A$内沿$\vec{v}$方向流量为
+	\begin{align*}
+		J = \frac{\partial m}{A\partial t} = \vec{v}·c
+	\end{align*}
+	该处浓度的变化情况为
+	\begin{align*}
+		\frac{\partial c}{\partial t} = -\nabla J = -\vec{v}·\nabla c - c\nabla · \vec{v}
+	\end{align*}
+	其中$\nabla$为Nabla算子，在三维空间下其定义为
+	\begin{align*}
+		\nabla = (\frac{\partial}{\partial x}, ~\frac{\partial}{\partial y}, ~\frac{\partial}{\partial z})
+	\end{align*}
+	由于在实际中，我们几乎不可能得到空间中处处的风速矢量，同时也为了节省计算开销，我们假设风速是一个常矢量.此外，\textbf{不失一般性，我们以风速在地平面的分矢量方向，作为x轴正向，以地面作为x-y平面，以垂直地面向上方向为z轴正向.}另外，我们暂时不考虑风速在z轴的分量（这将在下一节\ref{1}中讨论），即认为风速是沿着x轴正向的$\vec{v}(x, y, z)=(v, 0, 0)$.最终风力影响对扩散方程的修正项为
+	\begin{align*}
+		\frac{\partial c}{\partial t} = -v\frac{\partial c}{\partial x}
+	\end{align*}
+	
+	
+	\subsection{重力影响}\label{1}
+	物体在仅受重力影响时存在一个稳定的向下的加速度$g$，但是对于实际中所观察到的气体受重力影响所作运动往往不是匀加速运动，而是近似为匀速运动.这是由于气体分子的运动受到其他气体分子的碰撞阻力影响.另一方面，对于某一较轻物体，如雨滴，其以初始0速度做下落运动，其速度存在最大值而不会无限增加，这同样是出于空气阻力的影响.考虑到气体分子的尺度，我们合理假设其受到重力影响而始终保持一个衡定的向下的重力影响分量速度.这也是我们不考虑z轴方向风速的原因，因为二者均处于z轴方向，我们可以直接考虑二者的之和，将其称为“下落速度$g$”.该项对扩散方程的影响项如下，注意到由于g方向是沿z轴负向的，故相比于风力影响，存在一个正负号差异
+	\begin{align*}
+		\frac{\partial c}{\partial t} = g\frac{\partial c}{\partial z}
+	\end{align*}
+
+	\subsection{地面反射}
+	实际中，烟尘扩散不是全空间的，浓度函数应当只在地面以上部分定义.在地面处，考虑到地面存在“积灰”这一实际现象，即烟尘有可能触碰到地面便不再运动，我们可以考虑地面对地表附近烟尘的吸收作用，定义反射系数$r\in[0, 1]$，当$r=1$时，地面进行全反射，完全不吸收任何任何烟尘.当$r=0$时，地面将完全吸收烟尘.
+	
+	\subsection{烟尘排出速率与初始条件}
+	假设以工厂开始排出烟尘时刻为$t=0$时刻，此时全空间内初始烟尘浓度为0.在此后的时间里，高塔排放口处以恒定速率$Q~kg/s$接受来自工厂内部的烟尘.
+	
+	\subsection{体系边界浓度}
+	在离工厂足够远处，污染浓度为0，这是显然和直观的.在数学语言上体现为PDE的边界条件.
+	
+	\subsection{坐标系}
+	根据上述讨论，我们以垂直地面向上为z轴正向，风向为x轴正向，建立右手系.坐标原点为高塔底部地面位置.
 	
 	\section{符号说明}
 	\begin{table}[htbp]
 		\centering
-		\begin{tabular}{ccc}
+		\begin{tabularx}{0.8\textwidth}{XXc}
 			\hline
 			符号 & 含义 & 单位 \\
 			\hline
-			D & 扩散系数 & $m^2/s$ \\
-			Q & 污染物排放速率 & $kg/s$ \\
-			v & 风速 & $m/s$ \\
+			$c$ & 烟尘浓度 & $kg/m^3$ \\
+			$x, y, z$ & 空间坐标 & $m$ \\
+			$\delta x, \delta y, \delta z$ & 有限元尺度 & m \\
+			$t$ & 时间 & $s$ \\
+			$D$ & 扩散系数 & $m^2/s$ \\
+			$Q$ & 污染物排放速率 & $kg/s$ \\
+			$v$ & 风速 & $m/s$ \\
+			$h$ & 排放口高度 & $m$ \\
+			$g$ & 重力项影响系数（下落速度） & $m/s$ \\
+			$r$ & 地面反射系数 & $1$ \\
 			\hline
-		\end{tabular}
+		\end{tabularx}	
 	\end{table}
-	风向是沿x轴正向的（以风向为正向建立x轴）.
 	
 	\section{数学模型建立}
+	\subsection{PDE描述}\label{2}
+	\begin{Large}
 	\begin{align*}
-		&Given ~ D, ~ v, ~ Q, \quad solve ~ c(x,y,z,t),\\
+		&Given ~ D, ~ v, ~ Q, ~h, ~g, ~r, ~k \quad solve ~ c(x,y,z,t),\\
 		&s.t.
 		\begin{cases}
-			\frac{\partial c}{\partial t} = D\Delta c - v\frac{\partial c}{\partial x} + tf(x,y,z)	\\
+			\frac{\partial c}{\partial t} = D\Delta c - v\frac{\partial c}{\partial x} + g\frac{\partial c}{\partial z} + tf(x,y,z)	\\
 			c|_{x=\pm\infty}=c|_{y=\pm\infty}=c|_{z=+\infty}=0	\\
-			\frac{\partial c}{\partial z}|_{z=0} = 0	\\
+			\frac{\partial c}{\partial z}|_{z=0} = \frac{1-r}{k}c|_{z=0^+}	\\
 			c|_{t=0}=0
 		\end{cases}\\
 		&where  ~
@@ -87,19 +170,92 @@
 		\end{cases},\\
 		&-\infty<x, y<+\infty, \quad 0\leq z, t<+\infty
 	\end{align*}
+	\end{Large}
+	关于$k$的说明，请见\ref{4}关于地面反射系数的说明.
+
+	\subsection{离散化说明}\label{3}
+	对于模拟连续空间的离散三维张量$A(x, y, z)$，以$x$方向为例，设每个模拟单元的长度为$\delta x$此时该处有导数
+	\begin{align*}
+		\frac{\partial A}{\partial x}|_{(i, j, k)} = \frac{A(i+1, y, z)-A(i-1, y, z)}{2\delta x}
+	\end{align*}
+	而对于边界点，例如i=0，这是个“左”边界点，那么此时使用“右导数”作为导数
+	\begin{align*}
+		\frac{\partial A}{\partial x}|_{(i, j, k)} = \frac{A(i+1, y, z)-A(i, y, z)}{\delta x}
+	\end{align*}
+	类似地，我们同样定义左导数，适用于“右”边界点
+	\begin{align*}
+		\frac{\partial A}{\partial x}|_{(i, j, k)} = \frac{A(i, y, z)-A(i-1, y, z)}{\delta x}
+	\end{align*}
+	对于其他维度$y,z$定义完全相同.这样我们定义了一个三维张量在各元素位置的沿各维度的导数，再根据此，可以以相同的定义，根据$\Delta$算子的定义，计算二阶导矩阵，即散度矩阵.
 	
+	\subsection{关于地面反射系数的说明}\label{4}
+	在\ref{2}PDE描述中，$z=0$处边界条件使用了地面反射系数$r$，该式的意义并不显然.由于我们假设了地面处存在吸收现象，其浓度的变化情况是与附近的浓度绝对值成正比关系，因此需要引入比例系数，为了式子的表达符合习惯，引入量纲为$m$的常数$k$，使用$\frac{1}{k}$作为比例系数.
+	
+	而我们知道当$r=0$时，地面将进行全吸收，此时地面浓度应当为0，我们有如下关系
+	\begin{align*}
+		\frac{\partial c}{\partial z}|_{z=0} = \frac{1}{k}c|_{z=0^+}
+	\end{align*}
+	此时由\ref{3}离散化后的边界导数定义，即
+	\begin{align*}
+		\frac{\partial c}{\partial z}|_{z=0} =& \frac{c|_{z=1}-c|_{z=0}}{\delta z} \\
+		=& \frac{1}{k}c|_{z=1}
+	\end{align*}
+	带入$c|_{z=0}=0$，我们得到比例系数
+	\begin{align*}
+		k=\delta z
+	\end{align*}
+	另一方面，$r=1$即全部反射时，该式成为
+	\begin{align*}
+		\frac{\partial c}{\partial z}|_{z=0} = 0
+	\end{align*}
+	由\ref{3}离散化后的边界导数定义，有
+	\begin{align*}
+		c|_{z=1}=c|_{z=0}
+	\end{align*}
+	此时地面处沿z轴方向浓度稳定，不会有扩散现象.这与地面的全反射影响是吻合的.
+	
+	我们再来分析一般情况
+	\begin{align*}
+		\frac{\partial c}{\partial z}|_{z=0} =& \frac{c|_{z=1}-c|_{z=0}}{\delta z}\\
+		& = \frac{1-r}{k} c|_{z=0^+} = \frac{1-r}{\delta z} c|_{z=1}
+	\end{align*}
+	于是有
+	\begin{align*}
+		c|_{z=0} = rc|_{z=1}
+	\end{align*}
+	至此，我们得出一个重要的结论\textbf{在有限元模拟过程中，原PDE中比例系数$k=\delta z$}.并导出了离散化后进行有限元模拟时更新地面边界条件的方程.
+
 	\section{问题求解}
+	\subsection{重要参数设置}
+	\begin{itemize}
+		\item 模拟空间大小$601m\times601m\times101m$;
+		\item 有限元尺度$\delta x=\delta y=\delta z = 1m$，时间步长$dt=0.1s$;
+		\item 排放速率$Q=0.01 kg/s$.
+	\end{itemize}
+
+	\subsection{默认参数设置}
+	在不特殊讨论研究或提及的情况下，我们默认有如下默认参数组：
+	\begin{itemize}
+		\item 高塔排放口高度$h=20m$;
+		\item 扩散系数$D=1m^2/s$;
+		\item 风速$v=1.0m/s$.
+	\end{itemize}
+
+	\subsection{其他参数设置}
+	\begin{itemize}
+		\item 收敛标准：当全空间内各处浓度改变量之和不超过排放速率的$0.1\%$时，认为收敛.
+	\end{itemize}
 	
-	\section{讨论与优化}
+	\section{结果与讨论}
 	
 	\section{组内分工}
-	\textbf{可能需要修改}
-	\begin{itemize}
-		\item 假设提出与模型建立
-		\item 代码编写与绘图仿真
-		\item 结果讨论与模型改进
-		\item 结果汇总与报告撰写
-	\end{itemize}
+%	\textbf{可能需要修改}
+%	\begin{itemize}
+%		\item 假设提出与模型建立
+%		\item 代码编写与绘图仿真
+%		\item 结果讨论与模型改进
+%		\item 结果汇总与报告撰写
+%	\end{itemize}
 	
 %	\bibliographystyle{ieeetr}
 %	\begin{thebibliography}{2}
