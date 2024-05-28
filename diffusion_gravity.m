@@ -36,7 +36,7 @@ function res = diffusion_gravity(g, D, v, h, T, show_fig, C_init, t_init)
     
     %% Calculate concentration function
     % Initialization
-    if (nargin<=5)
+    if (nargin<=6)
         % C, t not initiated
         C = zeros(size(x));
         t_init = 0;

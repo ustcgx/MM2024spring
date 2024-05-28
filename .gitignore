@@ -6,4 +6,5 @@ test.m
 *.gz
 *.asv
 *.toc
-pics
+
+*.fig
