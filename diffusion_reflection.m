@@ -1,12 +1,13 @@
 % MATLAB simulation program
 % modified from diffusion.m to take ground reflection into consideration
-% There are 5 main diffenrences:
-% 1. add argument r, T0, C_thd, remove return value res
+% There are 6 main diffenrences:
+% 1. add argument r, T0, C_thd, remove return value res, add return value C_sum
 % 2. change argument T to a return value, it now means the time spent for smoke to dissipate
-% 3. line 58 change for to while, simulate until the total concentration drops to the threshold
-% 4. line 77 add if, limit the working time of chimeny
-% 5. line 82 consider the influence of ground absorption in boundary conditions
-function T = diffusion_reflection(r, T0, C_thd, D, v, h, show_fig, C_init, t_init)
+% 3. line 62 change for to while, simulate until the total concentration drops to the threshold
+% 4. line 82 add if, limit the working time of chimeny
+% 5. line 86 consider the influence of ground reflection in boundary conditions
+% 6. line 90 calculate the total concentration in space every second
+function [T, C_sum] = diffusion_reflection(r, T0, C_thd, D, v, h, show_fig, C_init, t_init)
     %% Parameter Description
     % r: the reflection coefficient of ground, 0<=r<=1.0
     % T0: the working time of the chimney
@@ -27,6 +28,7 @@ function T = diffusion_reflection(r, T0, C_thd, D, v, h, show_fig, C_init, t_ini
     dt = 0.1; % Time step in seconds
 
     C0 = 1e-2; % Constant concentration emitted by the chimney in kg/s
+    C_sum = []; % The total concentration in space every second
 
     %% Create grid
     num_x = round(2*Lx/dx)+1;
@@ -45,17 +47,19 @@ function T = diffusion_reflection(r, T0, C_thd, D, v, h, show_fig, C_init, t_ini
         % C, t not initiated
         C = zeros(size(x));
         t = 0;
+        C_sum(1) = 0;
     else
         % initial C, t given
         C = C_init;
         t = t_init;
+        C_sum(1) = sum(C_init, "all");
     end
 
     if (show_fig)
         figure(); 
     end
     % Simulation time stepping
-    while (t <= T0 || sum(C, "all") > C_thd)
+    while (t <= T0 || C_sum(end) > C_thd)
         t = t + dt;
         C_new = C;
         % Update concentration distribution, except for boundaries
@@ -78,19 +82,19 @@ function T = diffusion_reflection(r, T0, C_thd, D, v, h, show_fig, C_init, t_ini
             C_new(center, center, height) = C_new(center, center, height) + dt * C0;
         end
         
-        % Apply ground reflection boundary conditions (zero flux) assuming the concentration remains unchanged after reflection
-        C_new(:, :, 1) = (1-r) * C(:, :, 2);    % consider the influence of ground absorption in boundary conditions
+        % Apply ground reflection boundary conditions
+        C_new(:, :, 1) = r * C(:, :, 2);    % consider the influence of ground reflection in boundary conditions
 
         %% Monitor variables
-        % C_near = C_new(center-1:center+1, center-1:center+1, height)
-        total_delta_kg = sum(C_new-C,"all");
-        % max_delta_kg = max(C_new-C, [], "all")
-        
+        if mod(t, 1) < dt
+            C_sum(end+1) = sum(C_new, "all");
+        end
+
         % Update concentration distribution
         C = C_new;
 
         %% Plotting
-        if (show_fig && mod(t, 1)==0)
+        if (show_fig && mod(t, 1) < dt)
             % figure 1
             subplot(2,2,1);
             visualization(y(:,:,1), x(:,:,1), C(:,:,1), 'X/m', 'Y/m', 'C/(kg/m^3)', ...
@@ -120,11 +124,6 @@ function T = diffusion_reflection(r, T0, C_thd, D, v, h, show_fig, C_init, t_ini
             % if (mod(t, 50)==0 && t>0)
             %     savefig(strcat('t=', num2str(t),'.fig'))
             % end
-        end
-
-        %% Convergence
-        if (total_delta_kg<1e-6)
-            break;
         end
     end
 
